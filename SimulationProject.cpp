@@ -1,25 +1,25 @@
-#include <iostream>
+#include "Airworthy.h"
 #include "Passenger.h"
-
-void displayPassenger(Passenger& p)
-{
-	std::cout << "\nLast Name: " << p.getLastName()
-			  << "\nPassenger Type: " << p.getPassengerType()
-			  << "\nSeating Row: " << p.getSeatingRow()
-			  << "\nPriority Value: " << p.getPriorityValue()
-			  << std::endl;
-}
+#include <fstream>
+#include <string>
+#include <iostream>
 
 int main()
 {
-	Passenger p1("Sitter",'E',21);
-	Passenger p2("Smiter",'H',5);
+	Airworthy airworthySimulation70("airworthy70.txt", "simOut.txt");
+	airworthySimulation70.runSimulation();
 
-	p1.setPriorityValue(4);
-	p2.setPriorityValue(3);
+	// std::ofstream outputFile("outputFile.txt");
+	// std::ifstream inFile("airworthy70.txt");
+	// std::string line;
+	// int lineNumber = 1;
 
-	displayPassenger(p1);
-	displayPassenger(p2);
+	// while (inFile.peek() != EOF)
+	// {
+	// 	std::getline(inFile, line);
+	// 	Passenger tempPassenger(line);
+	// 	outputFile << tempPassenger.toString() << std::endl;
+	// }
 
 	return 0;
 }

@@ -34,12 +34,29 @@ private:
 
 public:
 	/**
+	 * Passenger default constructor.
+	 */
+	Passenger();
+	
+	/**
+	 * Passenger constructor to build passenger from line of input file.
+	 * param inputLine - Input line for passenger simulation
+	 */
+	Passenger(std::string inputLine);
+
+	/**
 	 * Passenger constructor
 	 * @param last - Last name
 	 * @param type - Type of passenger (H,E,G)
 	 * @param row - Row number on flight (1-26)
 	 */
 	Passenger(std::string last, char type, int row);
+
+	/**
+	* Turns passenger object into a string for i/o
+	* @return Passenger object as string.
+	*/
+	std::string toString() const;
 
 	/**
 	 * Sets passenger priority value for boarding.

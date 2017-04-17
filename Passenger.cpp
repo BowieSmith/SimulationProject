@@ -1,10 +1,50 @@
+/**
+ * @author		Bowie Sith
+ * @file		Passenger.cpp
+ * @date		April 2017
+ */
+
 #include "Passenger.h"
+#include <vector>
+#include <sstream>
+#include <string>
+#include <iomanip>
+
+Passenger::Passenger() : priorityValue(0), lastName(""), passengerType('X'), seatingRow(0)
+{
+}
+
+Passenger::Passenger(std::string inputLine) : priorityValue(0)
+{
+	std::istringstream ss(inputLine);
+	std::string token;
+	std::vector<std::string> tokenVector;
+
+	while (std::getline(ss, token, ' '))
+	{
+		tokenVector.push_back(token);
+	}
+
+	lastName = tokenVector[0];
+	setPassengerType(tokenVector[1][0]);
+	setSeatingRow(std::stoi(tokenVector[2]));
+}
 
 Passenger::Passenger(std::string last, char type, int row)
-	: lastName(last)
+		: lastName(last), priorityValue(0)
 {
 	setPassengerType(type);
 	setSeatingRow(row);
+}
+
+std::string Passenger::toString() const
+{
+	std::ostringstream oss;
+	oss << std::setw(13) << lastName
+		<< std::setw(5) << passengerType
+		<< std::setw(5) << std::to_string(seatingRow)
+		<< std::setw(5) << std::to_string(priorityValue);
+	return oss.str();
 }
 
 void Passenger::setPriorityValue(int p)
