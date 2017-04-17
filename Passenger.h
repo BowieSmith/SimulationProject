@@ -11,6 +11,7 @@
 #ifndef PASSENGER_H_
 #define PASSENGER_H_
 
+#include "PrecondViolatedExcep.h"
 #include <string>
 
 class Passenger
