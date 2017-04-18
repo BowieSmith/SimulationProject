@@ -26,3 +26,6 @@
 
 # Vim swap files
 *.swp
+
+# Text Files
+*.txt
