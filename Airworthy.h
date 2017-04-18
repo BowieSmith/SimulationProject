@@ -1,5 +1,5 @@
 /**
- * @author		Bowie Sith
+ * @author		Bowie Smith
  * @file		Airworthy.h
  * @date		April 2017
  *
@@ -37,11 +37,34 @@ private:
 	// File to write simulation results too.
 	std::ofstream outputFile;
 
+	// Data header for output file
+	std::string dataHeader;
+
+	/**
+	 * Helper function to generate dataHeader string.
+	 */
+	void generateDataHeader();
+
 	/**
 	 * Calculate time for boarding procedure and generate passenger boarding list.
 	 * @param Priority Queue for this simulation
+	 * @param Int time variable to measure simulation matching priority queue argument
 	 */
 	void calculateTimeAndGenerateBoardingList(Heap_PriorityQueue<Passenger>& pq, int& time);
+
+	/**
+	 * Load priority queues and record passengers in the order they appear in input file.
+	 * @param input file name
+	 * @param output file name
+	 */
+	 void loadQueuesAndRecordInputList(std::string inputFileName, std::string outputFileName);
+
+	 /**
+	 * Run simulation.
+	 * This method runs the boarding simulation and outputs the results to the
+	 * output file defined by the user.
+	 */
+	void runSimulation();
 
 public:
 	/**
@@ -52,13 +75,6 @@ public:
 	 * @param outputFileName - Name of file of location to store simulation results
 	 */
 	Airworthy(std::string inputFileName, std::string outputFileName);
-
-	/**
-	 * Run simulation.
-	 * This method runs the boarding simulation and outputs the results to the
-	 * output file defined by the user.
-	 */
-	void runSimulation();
 };
 
 #include "Airworthy.cpp"

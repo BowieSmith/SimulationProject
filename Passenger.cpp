@@ -1,5 +1,5 @@
 /**
- * @author		Bowie Sith
+ * @author		Bowie Smith
  * @file		Passenger.cpp
  * @date		April 2017
  */
