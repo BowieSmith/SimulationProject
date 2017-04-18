@@ -39,7 +39,7 @@ public:
 	Passenger();
 	
 	/**
-	 * Passenger constructor to build passenger from line of input file.
+	 * Passenger constructor to build passenger given line from input file.
 	 * param inputLine - Input line for passenger simulation
 	 */
 	Passenger(std::string inputLine);

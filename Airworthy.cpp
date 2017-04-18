@@ -4,7 +4,36 @@
  * @date		April 2017
  */
 
-void Airworthy::assignOldPriorityNumber(Passenger& p) const
+#include <sstream>
+#include <iomanip>
+#include "PriorityQueueInterface.h"
+
+std::string dataHeader()
+{
+	std::ostringstream oss;
+	oss << std::setw(13) << "Last Name"
+		<< std::setw(5) << "Type"
+		<< std::setw(5) << "Row#"
+		<< "  Priority Value";
+	return oss.str();
+}
+
+/**
+ * Assigns old boarding priority number to passenger.
+ * In the old boarding procedure there are 7 priority values.
+ * 1 is the lowest priority and 7 is the highest:
+ *
+ * 7: Families with young children or people who need help (Passenger Type = 'H')
+ * 6: First class and/or business class (Seating Row = 1-4)
+ * 5: Elite passengers and passengers in exit rows (Passenger Type = 'E' or Seating Row = 10 or 11)
+ * 4: Passengers in Seating Rows 23-26
+ * 3: Passengers in Seating Rows 17-22
+ * 2: Passengers in Seating Rows 11-16
+ * 1: Passengers in Seating Rows 5-10
+ *
+ * @param Passenger
+ */
+void assignOldPriorityNumber(Passenger& p)
 {
 	char passengerType = p.getPassengerType();
 	int row = p.getSeatingRow();
@@ -21,15 +50,15 @@ void Airworthy::assignOldPriorityNumber(Passenger& p) const
 	{
 		p.setPriorityValue(5);
 	}
-	else if (row >= 26 && row <= 23)
+	else if (row >= 23 && row <= 26)
 	{
 		p.setPriorityValue(4);
 	}
-	else if (row >= 22 && row <= 17)
+	else if (row >= 17 && row <= 22)
 	{
 		p.setPriorityValue(3);
 	}
-	else if (row >= 16 && row <= 11)
+	else if (row >= 11 && row <= 16)
 	{
 		p.setPriorityValue(2);
 	}
@@ -39,7 +68,20 @@ void Airworthy::assignOldPriorityNumber(Passenger& p) const
 	}
 }
 
-void Airworthy::assignNewPriorityNumber(Passenger& p) const
+/**
+ * Assigns new boarding priority number to passenger.
+ * In the old boarding procedure there are 4 priority values.
+ * The first three values are the same as the old boarding values, but
+ * general passengers simply board in the order they're standing in line.
+ *
+ * 4: Families with young children or people who need help (Passenger Type = 'H')
+ * 3: First class and/or business class (Seating Row = 1-4)
+ * 2: Elite passengers and passengers in exit rows (Passenger Type = 'E' or Seating Row = 10 or 11)
+ * 1: Everyone else
+ *
+ * @param Passenger
+ */
+void assignNewPriorityNumber(Passenger& p)
 {
 	char passengerType = p.getPassengerType();
 	int row = p.getSeatingRow();
@@ -62,14 +104,46 @@ void Airworthy::assignNewPriorityNumber(Passenger& p) const
 	}
 }
 
+void Airworthy::calculateTimeAndGenerateBoardingList(
+		Heap_PriorityQueue<Passenger>& pq, int& time)
+{
+	int currentPassengerRow = 0;
+	int previousPassengerRow = 27;
+
+	while (!pq.isEmpty())
+	{
+		Passenger currentPassenger = pq.peek();
+		outputFile << currentPassenger.toString() << std::endl;
+
+		currentPassengerRow = currentPassenger.getSeatingRow();
+
+		if (previousPassengerRow <= currentPassengerRow)
+		{
+			time += 25;
+		}
+		else
+		{
+			time++;
+		}
+
+		previousPassengerRow = currentPassengerRow;
+		pq.remove();
+	}
+}
+
 Airworthy::Airworthy(std::string inputFileName, std::string outputFileName)
+	: previousBoardingProcTime(0), newBoardingProcTime(0)
 {
 	try
 	{
 		outputFile = std::ofstream(outputFileName);
-		outputFile << "Order of passengers in input file.\n"
-				   << "Note: Passengers from input value have a default priority value set to 0\n"
-				   << "because they are not part of a boarding procedure.\n\n";
+		outputFile << "---AIRWORTHY BOARDING SIMULATION RESULTS---\n\n"
+				   << "The following list contains the passengers in the order\n"
+				   << "they were listed in the input file: " << inputFileName << "\n"
+				   << "Note: Passengers from the input file have a default\n"
+				   << "priority value set to 0 because they are not yet\n"
+				   << "part of a boarding procedure.\n\n";
+		outputFile << dataHeader() << std::endl << std::endl; 
 
 		std::ifstream inFile(inputFileName);
 		std::string line;
@@ -98,17 +172,18 @@ Airworthy::Airworthy(std::string inputFileName, std::string outputFileName)
 
 void Airworthy::runSimulation()
 {
-	outputFile << "\nPassenger boarding order with old boarding procedures:\n\n";
-	while (!previousBoardingProcQueue.isEmpty())
-	{
-		outputFile << previousBoardingProcQueue.peek().toString() << std::endl;
-		previousBoardingProcQueue.remove();
-	}
+	outputFile << "\nThe following list contains the passengers in the order they"
+			   << "\nboarded the simulated flight using the old boarding procedures.\n\n"
+			   << dataHeader() << std::endl << std::endl;
+	calculateTimeAndGenerateBoardingList(previousBoardingProcQueue, previousBoardingProcTime);
 
-	outputFile << "\nPassenger boarding order with new boarding procedures:\n\n";
-	while (!newBoardingProcQueue.isEmpty())
-	{
-		outputFile << newBoardingProcQueue.peek().toString() << std::endl;
-		newBoardingProcQueue.remove();
-	}
+	outputFile << "\n\nThe old boarding procedure took " << std::setprecision(2)
+	   		   << std::fixed << (previousBoardingProcTime / 60.0) << " minutes.\n\n";
+
+	outputFile << "\nThe following list contains the passengers in the order they"
+			   << "\nboarded the simulated flight using the new boarding procedures.\n\n";
+	calculateTimeAndGenerateBoardingList(newBoardingProcQueue, newBoardingProcTime);
+
+	outputFile << "\n\nThe new boarding procedure took " << std::setprecision(2)
+	   		   << std::fixed << (newBoardingProcTime / 60.0) << " minutes.\n\n";
 }

@@ -38,41 +38,15 @@ private:
 	std::ofstream outputFile;
 
 	/**
-	 * Assigns old boarding priority number to passenger.
-	 * In the old boarding procedure there are 7 priority values.
-	 * 1 is the lowest priority and 7 is the highest:
-	 *
-	 * 7: Families with young children or people who need help (Passenger Type = 'H')
-	 * 6: First class and/or business class (Seating Row = 1-4)
-	 * 5: Elite passengers and passengers in exit rows (Passenger Type = 'E' or Seating Row = 10 or 11)
-	 * 4: Passengers in Seating Rows 23-26
-	 * 3: Passengers in Seating Rows 17-22
-	 * 2: Passengers in Seating Rows 11-16
-	 * 1: Passengers in Seating Rows 5-10
-	 *
-	 * @param Passenger
+	 * Calculate time for boarding procedure and generate passenger boarding list.
+	 * @param Priority Queue for this simulation
 	 */
-	void assignOldPriorityNumber(Passenger& p) const;
-
-	/**
-	 * Assigns new boarding priority number to passenger.
-	 * In the old boarding procedure there are 4 priority values.
-	 * The first three values are the same as the old boarding values, but
-	 * general passengers simply board in the order they're standing in line.
-	 *
-	 * 4: Families with young children or people who need help (Passenger Type = 'H')
-	 * 3: First class and/or business class (Seating Row = 1-4)
-	 * 2: Elite passengers and passengers in exit rows (Passenger Type = 'E' or Seating Row = 10 or 11)
-	 * 1: Everyone else
-	 *
-	 * @param Passenger
-	 */
-	void assignNewPriorityNumber(Passenger& p) const;
+	void calculateTimeAndGenerateBoardingList(Heap_PriorityQueue<Passenger>& pq, int& time);
 
 public:
 	/**
 	 * Airworthy constructor.  Reads simulation passengers from input file and loads
-	 * passengers into priority queues to test the new and old boarding procedures.
+	 * passengers into both priority queues to test old vs new boarding procedure.
 	 * @param inputFileName - Contains list of passengers to board plane for simulation.
 	 *		Input list inludes passenger last name, passenger type, and seating row number.
 	 * @param outputFileName - Name of file of location to store simulation results
