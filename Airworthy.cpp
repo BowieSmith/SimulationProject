@@ -1,5 +1,5 @@
 /**
- * @author		Bowie Sith
+ * @author		Bowie Smith
  * @file		Airworthy.cpp
  * @date		April 2017
  */
@@ -7,16 +7,6 @@
 #include <sstream>
 #include <iomanip>
 #include "Airworthy.h"
-
-std::string dataHeader()
-{
-	std::ostringstream oss;
-	oss << std::setw(13) << "Last Name"
-		<< std::setw(5) << "Type"
-		<< std::setw(5) << "Row#"
-		<< "  Priority Value";
-	return oss.str();
-}
 
 /**
  * Assigns old boarding priority number to passenger.
@@ -104,12 +94,29 @@ void assignNewPriorityNumber(Passenger& p)
 	}
 }
 
+void Airworthy::generateDataHeader()
+{
+	std::ostringstream oss;
+	oss << std::setw(13) << "Last Name"
+		<< std::setw(5) << "Type"
+		<< std::setw(5) << "Row#"
+		<< "  Priority Value";
+	dataHeader = oss.str();
+}
+
 void Airworthy::calculateTimeAndGenerateBoardingList(
 		Heap_PriorityQueue<Passenger>& pq, int& time)
 {
-	int currentPassengerRow = 0;
+	// Assume first previous passenger is seated in imaginary back seat to
+	// avoid special case
 	int previousPassengerRow = 27;
+	int currentPassengerRow = 0;
 
+	// Remove passengers from priority queue until empty.
+	// Record each passenger to simulate boarding the flight.
+	// If previous passenger was seated nearer to the front of the plane
+	// (with a lesser seat number), increment boarding time by 25 seconds.
+	// Otherwise increment boarding time by 1 second.
 	while (!pq.isEmpty())
 	{
 		Passenger currentPassenger = pq.peek();
@@ -131,23 +138,39 @@ void Airworthy::calculateTimeAndGenerateBoardingList(
 	}
 }
 
-Airworthy::Airworthy(std::string inputFileName, std::string outputFileName)
-	: previousBoardingProcTime(0), newBoardingProcTime(0)
+void Airworthy::loadQueuesAndRecordInputList(std::string inputFileName,
+		std::string outputFileName)
 {
 	try
 	{
 		outputFile = std::ofstream(outputFileName);
+	}
+	catch (std::ofstream::failure e)
+	{
+		std::cerr << "Error opening output file: " << outputFileName
+				  << "\n"  << e.what() << std::endl;
+	}
+
+	try
+	{
+		std::ifstream inFile(inputFileName);
+	
 		outputFile << "---AIRWORTHY BOARDING SIMULATION RESULTS---\n\n"
-				   << "The following list contains the passengers in the order\n"
-				   << "they were listed in the input file: " << inputFileName << "\n"
-				   << "Note: Passengers from the input file have a default\n"
+				   << "The following list contains passengers in the order\n"
+				   << "they were listed in the input file: " << inputFileName << "\n\n"
+				   << "NOTE: Passengers from the input file have a default\n"
 				   << "priority value set to 0 because they are not yet\n"
 				   << "part of a boarding procedure.\n\n";
-		outputFile << dataHeader() << std::endl << std::endl; 
-
-		std::ifstream inFile(inputFileName);
+		outputFile << dataHeader << std::endl << std::endl;
+			
 		std::string line;
 
+		// Iterate through input file line by line.
+		// For each line, build and record two Passenger objects.
+		// One passenger object will be assigned a priority value according
+		// to old procedures, while the other will be assigned a priority
+		// value according to the new procedures.
+		// Add the passengers to their corresponding priority queues.
 		while (inFile.peek() != EOF)
 		{
 			std::getline(inFile, line);
@@ -164,9 +187,14 @@ Airworthy::Airworthy(std::string inputFileName, std::string outputFileName)
 
 		inFile.close();
 	}
-	catch (std::fstream::failure e)
+	catch (PrecondViolatedExcep e)
 	{
-		std::cerr << "Error opening/closing file: " << inputFileName << std::endl;
+		std::cerr << e.what() << std::endl;
+	}
+	catch (std::ifstream::failure e)
+	{
+		std::cerr << "Error opening input file: " << inputFileName
+				  << "\n"  << e.what() << std::endl;
 	}
 }
 
@@ -174,16 +202,29 @@ void Airworthy::runSimulation()
 {
 	outputFile << "\nThe following list contains the passengers in the order they"
 			   << "\nboarded the simulated flight using the old boarding procedures.\n\n"
-			   << dataHeader() << std::endl << std::endl;
+			   << dataHeader << std::endl << std::endl;
 	calculateTimeAndGenerateBoardingList(previousBoardingProcQueue, previousBoardingProcTime);
 
 	outputFile << "\n\nThe old boarding procedure took " << std::setprecision(2)
 	   		   << std::fixed << (previousBoardingProcTime / 60.0) << " minutes.\n\n";
 
 	outputFile << "\nThe following list contains the passengers in the order they"
-			   << "\nboarded the simulated flight using the new boarding procedures.\n\n";
+			   << "\nboarded the simulated flight using the new boarding procedures.\n\n"
+			   << dataHeader << std::endl << std::endl;
 	calculateTimeAndGenerateBoardingList(newBoardingProcQueue, newBoardingProcTime);
 
 	outputFile << "\n\nThe new boarding procedure took " << std::setprecision(2)
 	   		   << std::fixed << (newBoardingProcTime / 60.0) << " minutes.\n\n";
+}
+
+Airworthy::Airworthy(std::string inputFileName, std::string outputFileName)
+	: previousBoardingProcTime(0), newBoardingProcTime(0)
+{
+	generateDataHeader();
+
+	loadQueuesAndRecordInputList(inputFileName, outputFileName);
+
+	runSimulation();
+
+	outputFile.close();
 }
