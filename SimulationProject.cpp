@@ -1,8 +1,5 @@
 #include "Airworthy.h"
-#include "Passenger.h"
-#include <fstream>
 #include <string>
-#include <iostream>
 
 int main()
 {

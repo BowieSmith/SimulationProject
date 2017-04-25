@@ -130,6 +130,4 @@ public:
 	bool operator<(Passenger rightHandOperand);
 };
 
-#include "Passenger.cpp"
-
 #endif

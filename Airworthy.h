@@ -61,6 +61,4 @@ public:
 	void runSimulation();
 };
 
-#include "Airworthy.cpp"
-
 #endif
